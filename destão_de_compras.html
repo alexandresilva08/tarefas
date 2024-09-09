@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Compras</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Reset básico */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+        }
+        header {
+            background-color: #343a40;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        #app, #compras {
+            flex: 1; /* Permite que o conteúdo preencha o espaço disponível */
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        input, button, select {
+            padding: 12px;
+            margin: 10px 0;
+            width: calc(100% - 24px);
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        h2 {
+            margin-top: 20px;
+            color: #343a40;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: #f8f9fa;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s;
+        }
+        li:hover {
+            background-color: #e9ecef;
+        }
+        .delete, .edit {
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+            color: white;
+        }
+        .edit {
+            background: #28a745;
+        }
+        .delete {
+            background: #dc3545;
+        }
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #343a40;
+            color: white;
+            font-size: 14px;
+        }
+        footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 600px) {
+            body {
+                font-size: 14px;
+            }
+            input, button, select {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1><i class="fas fa-shopping-cart"></i> Gestão de Compras</h1>
+</header>
+
+<div id="app">
+    <h2><i class="fas fa-plus"></i> Adicionar Compras</h2>
+    <input type="text" id="item" placeholder="Nome da compra" required>
+    <input type="date" id="date" required>
+    <input type="number" id="value" placeholder="Valor do Produto" required>
+    <select id="status">
+        <option value="Não Efetuada">Não Efetuada</option>
+        <option value="Efetuada">Efetuada</option>
+        <option value="Futura">Futura</option>
+    </select>
+    <button id="add-btn"><i class="fas fa-plus"></i> Adicionar Compra</button>
+    <button id="view-btn"><i class="fas fa-list"></i> Ver Compras</button>
+</div>
+
+<div id="compras" style="display: none;">
+    <h2><i class="fas fa-list-alt"></i> Lista de Compras</h2>
+    
+    <h3>Não Efetuadas</h3>
+    <ul id="lista-nao-efetuadas"></ul>
+
+    <h3>Efetuadas</h3>
+    <ul id="lista-efetuadas"></ul>
+
+    <h3>Futuras</h3>
+    <ul id="lista-futuras"></ul>
+
+    <button id="back-btn"><i class="fas fa-arrow-left"></i> Voltar</button>
+</div>
+
+<footer>
+    <p>&copy; 2024 Gestão de Compras. Todos os direitos reservados.</p>
+    <p>
+        <a href="#">Política de Privacidade</a> | 
+        <a href="#">Termos de Serviço</a>
+    </p>
+</footer>
+
+<script>
+    const addButton = document.getElementById('add-btn');
+    const viewButton = document.getElementById('view-btn');
+    const backButton = document.getElementById('back-btn');
+    const itemInput = document.getElementById('item');
+    const dateInput = document.getElementById('date');
+    const valueInput = document.getElementById('value');
+    const statusInput = document.getElementById('status');
+    const listaNaoEfetuadas = document.getElementById('lista-nao-efetuadas');
+    const listaEfetuadas = document.getElementById('lista-efetuadas');
+    const listaFuturas = document.getElementById('lista-futuras');
+
+    function loadCompras() {
+        const compras = JSON.parse(localStorage.getItem('compras')) || [];
+        listaNaoEfetuadas.innerHTML = '';
+        listaEfetuadas.innerHTML = '';
+        listaFuturas.innerHTML = '';
+
+        compras.forEach(comprar => {
+            addCompraToList(comprar);
+        });
+    }
+
+    function addCompraToList(comprar) {
+        const li = document.createElement('li');
+        li.innerHTML = `${comprar.item} - ${new Date(comprar.date).toLocaleDateString()} - R$ ${comprar.value.toFixed(2)} - 
+                        <select onchange="updateStatus(event, '${comprar.item}', '${comprar.date}')">
+                            <option value="Não Efetuada" ${comprar.status === "Não Efetuada" ? 'selected' : ''}>Não Efetuada</option>
+                            <option value="Efetuada" ${comprar.status === "Efetuada" ? 'selected' : ''}>Efetuada</option>
+                            <option value="Futura" ${comprar.status === "Futura" ? 'selected' : ''}>Futura</option>
+                        </select>`;
+        
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Apagar';
+        deleteButton.className = 'delete';
+        deleteButton.onclick = () => {
+            if (confirm('Você tem certeza que deseja apagar esta compra?')) {
+                removeCompraFromStorage(comprar);
+                loadCompras();
+            }
+        };
+
+        li.appendChild(deleteButton);
+
+        if (comprar.status === "Não Efetuada") {
+            listaNaoEfetuadas.appendChild(li);
+        } else if (comprar.status === "Efetuada") {
+            listaEfetuadas.appendChild(li);
+        } else if (comprar.status === "Futura") {
+            listaFuturas.appendChild(li);
+        }
+    }
+
+    function updateStatus(event, item, date) {
+        const newStatus = event.target.value;
+        let compras = JSON.parse(localStorage.getItem('compras')) || [];
+        compras = compras.map(comprar => {
+            if (comprar.item === item && comprar.date === date) {
+                comprar.status = newStatus;
+            }
+            return comprar;
+        });
+        localStorage.setItem('compras', JSON.stringify(compras));
+        loadCompras();
+    }
+
+    function removeCompraFromStorage(comprar) {
+        let compras = JSON.parse(localStorage.getItem('compras')) || [];
+        compras = compras.filter(c => c.item !== comprar.item || c.date !== comprar.date);
+        localStorage.setItem('compras', JSON.stringify(compras));
+    }
+
+    addButton.addEventListener('click', () => {
+        const itemValue = itemInput.value.trim();
+        const dateValue = dateInput.value;
+        const valueValue = parseFloat(valueInput.value);
+        const statusValue = statusInput.value;
+
+        if (itemValue && dateValue && !isNaN(valueValue)) {
+            const comprar = { item: itemValue, date: dateValue, value: valueValue, status: statusValue };
+            saveCompra(comprar);
+            loadCompras();
+
+            // Limpar campos
+            itemInput.value = '';
+            dateInput.value = '';
+            valueInput.value = '';
+            statusInput.value = 'Não Efetuada';
+        } else {
+            alert('Por favor, preencha todos os campos corretamente.');
+        }
+    });
+
+    function saveCompra(comprar) {
+        const compras = JSON.parse(localStorage.getItem('compras')) || [];
+        compras.push(comprar);
+        localStorage.setItem('compras', JSON.stringify(compras));
+    }
+
+    viewButton.addEventListener('click', () => {
+        document.getElementById('app').style.display = 'none';
+        document.getElementById('compras').style.display = 'block';
+        loadCompras();
+    });
+
+    backButton.addEventListener('click', () => {
+        document.getElementById('compras').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+    });
+
+    document.getElementById('app').style.display = 'block';
+</script>
+
+</body>
+</html>
